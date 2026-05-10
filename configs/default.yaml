@@ -1,0 +1,45 @@
+# default.yaml — Default configuration for HQEHED-AMT + PSO-SVM pipeline
+# Load with: cfg = Config.from_yaml("configs/default.yaml")
+
+# ── Dataset ───────────────────────────────────────────────────────────────────
+data_root: "../dataset"
+output_dir: "./results"
+img_size: 512
+max_images: 30
+
+# ── Preprocessing (Section 3.2) ───────────────────────────────────────────────
+gauss_ksize: 3        # Gaussian kernel size (must be odd: 3, 5, 7)
+gauss_sigma: 0.5      # Gaussian sigma; higher = smoother
+
+# ── HQEHED-AMT (Section 3.3) ──────────────────────────────────────────────────
+crop_size: 512        # Segment length per scan (auto-rounded to power of 2)
+gamma: 1.0            # Positive edge threshold multiplier (0.10 – 1.0)
+gamma_neg: 1.0        # Negative edge threshold multiplier (0.10 – 1.0)
+
+# ── PSO (Section 3.5, Eq. 2.27–2.28) ─────────────────────────────────────────
+pso_particles: 20
+pso_iterations: 50
+pso_w: 0.7            # Inertia weight
+pso_c1: 1.5           # Cognitive factor
+pso_c2: 1.5           # Social factor
+pso_c_range: [-1.0, 3.0]   # log10(C) search range → C ∈ [0.1, 1000]
+pso_g_range: [-3.0, 1.0]   # log10(γ) search range → γ ∈ [0.001, 10]
+
+# ── SVM ───────────────────────────────────────────────────────────────────────
+svm_kernel: "rbf"
+patch_size: 5
+svm_class_weight:
+  0: 1    # non-tumor weight
+  1: 2    # tumor weight (upweighted to reduce false negatives)
+
+# ── Post-processing ───────────────────────────────────────────────────────────
+cc_min_size: 1000     # Minimum connected-component area (pixels) to retain
+cc_max_blobs: 2       # Maximum number of tumor regions to keep
+
+# ── Sampling ──────────────────────────────────────────────────────────────────
+n_samples_per_img: 800
+eval_n_tumor: 1500
+eval_n_nontumor: 6000
+
+# ── Evaluation ────────────────────────────────────────────────────────────────
+alpha_fom: 0.5        # Pratt's FOM scaling constant (Eq. 2.39)
